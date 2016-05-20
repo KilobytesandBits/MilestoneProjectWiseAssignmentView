@@ -1,4 +1,4 @@
-milestone-team-wise-assinment
+milestone-team-wise-assignment
 =========================
 
 ## Overview
@@ -6,7 +6,7 @@ milestone-team-wise-assinment
 
 ## License
 
-milestone-team-wise-assinment is released under the MIT license.  See the file [LICENSE](./LICENSE) for the full text.
+milestone-team-wise-assignment is released under the MIT license.  See the file [LICENSE](./LICENSE) for the full text.
 
 ##Documentation for SDK
 
