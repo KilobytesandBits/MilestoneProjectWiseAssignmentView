@@ -121,7 +121,7 @@ Ext.define('CustomApp', {
 	 * Get the milestone data to create the doc
 	 */
 	_loadArtifacts : function() {
-		
+
 		Ext.getBody().mask('Generating Report...');
 
 		var that = this;
@@ -167,11 +167,11 @@ Ext.define('CustomApp', {
 				projectScopeDown : true
 			},
 			filters : that._getGridFilter(),
-			fetch : [ 'FormattedID', 'Name', 'Feature', 'Project', 'c_KanbanState' ],
+			fetch : [ 'FormattedID', 'Name', 'Feature', 'Project', 'ScheduleState' ],
 			limit : Infinity,
 			listeners : {
 				load : function(store, data, success) {
-					console.log(data);
+					//console.log(data);
 					that._drawGrid(store);
 				},
 				scope : this
@@ -232,14 +232,30 @@ Ext.define('CustomApp', {
 	 */
 	_drawGrid : function(gridStore) {
 		var that = this;
-		
+
+		if (that.down('#ExportBtn')) {
+			that.down('#ExportBtn').destroy();
+		}
+
+		var exportBtn = Ext.create('Ext.Button', {
+			id : 'ExportBtn',
+			text : 'Export',
+			scale : 'large',
+			cls : 'custExprtBtnCls',
+			handler : function() {
+				alert('Export');
+			}
+		});
+
+		this.add(exportBtn);
+
 		if (that.down('rallygrid')) {
 			that.down('rallygrid').destroy();
 		}
 
 		this.add({
 			xtype : 'rallygrid',
-			columnCfgs : [  {
+			columnCfgs : [ {
 				text : 'Formated ID',
 				dataIndex : 'FormattedID'
 			}, {
@@ -252,14 +268,14 @@ Ext.define('CustomApp', {
 				text : 'Project',
 				dataIndex : 'Project'
 			}, {
-				text : 'State',
-				dataIndex : 'c_KanbanState'
+				text : 'Schedule State',
+				dataIndex : 'ScheduleState'
 			} ],
 			store : gridStore,
 			enableEditing : false
 		});
-		
+
 		Ext.getBody().unmask();
 	}
-	
+
 });
