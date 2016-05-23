@@ -252,7 +252,8 @@
 			scale : 'large',
 			cls : 'custExprtBtnCls',
 			handler : function() {
-				alert('Export');
+				//alert('Export');
+				that._onClickExport();
 			}
 		});
 
@@ -264,27 +265,78 @@
 
 		this.add({
 			xtype : 'rallygrid',
+			id : 'gridData',
 			columnCfgs : [ {
-				text : 'Formated ID',
+				text : 'User Story#',
 				dataIndex : 'FormattedID'
 			}, {
-				text : 'Name',
+				text : 'User Story Name',
 				dataIndex : 'Name'
 			}, {
-				text : 'Parent Feature',
-				dataIndex : 'Feature'
+				text : 'Current Status',
+				dataIndex : 'ScheduleState',
+				renderer : function(value) {
+					return value;
+				}
 			}, {
-				text : 'Project',
+				text : 'Team',
 				dataIndex : 'Project'
 			}, {
-				text : 'Schedule State',
-				dataIndex : 'ScheduleState'
+				text : 'Feature',
+				dataIndex : 'Feature'
 			} ],
 			store : gridStore,
 			enableEditing : false
 		});
 
 		Ext.getBody().unmask();
+	},
+
+	_onClickExport : function() {
+
+		var that = this;
+
+		if (/*@cc_on!@*/0) { //Exporting to Excel not supported in IE
+			Ext.Msg.alert('Error', 'Exporting to CSV is not supported in Internet Explorer. Please switch to a different browser and try again.');
+		} else if (this.down('#gridData')) {
+
+			Ext.getBody().mask('Exporting...');
+
+			setTimeout(function() {
+				var template = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-' + 'microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head>'
+						+ '<!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>'
+						+ '{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet>'
+						+ '</x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table>{table}' + '</table></body></html>';
+
+				var base64 = function(s) {
+					return window.btoa(unescape(encodeURIComponent(s)));
+				};
+				var format = function(s, c) {
+					return s.replace(/{(\w+)}/g, function(m, p) {
+						return c[p];
+					});
+				};
+				var table = that.getComponent('gridData');
+
+				var excel_data = '<tr>';
+				Ext.Array.each(table.getEl().dom.outerHTML.match(/<span .*?x-column-header-text.*?>.*?<\/span>/gm), function(column_header_span) {
+					excel_data += (column_header_span.replace(/span/g, 'td'));
+				});
+				excel_data += '</tr>';
+				Ext.Array.each(table.getEl().dom.outerHTML.match(/<tr .*?x-grid-row.*?<\/tr>/gm), function(line) {
+					excel_data += line.replace(/[^\011\012\015\040-\177]/g, '>>');
+				});
+
+				var fileName = that.selectedMilestoneObj[0].get('FormattedID') + " - " + that.selectedMilestoneObj[0].get('Name');
+
+				var ctx = {
+					worksheet : name || 'Worksheet',
+					table : excel_data
+				};
+				window.location.href = 'data:application/vnd.ms-excel;base64,' + base64(format(template, ctx));
+				Ext.getBody().unmask();
+			}, 500);
+		}
 	}
 
 });
